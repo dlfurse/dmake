@@ -1,7 +1,7 @@
 # dmake is written by Dan Furse (dlfurse@mit.edu)
 
-# the goal of dmake is to help you stay away from wanting to rip your balls off and bleed out when you use cmake
-message( STATUS "*** dmake! take it easy:-D" )
+# the goal of dmake is to help you stay away from wanting to rip your arms off and bleed out when you use cmake
+message( STATUS "*** dmake! take it easy :-D" )
 
 # this macro declares a project and declares some installation and structural cache variables so you can tell cmake what you want
 macro( dmake_project_begin LOCAL_PROJECT_NAME LOCAL_MAJOR_VERSION LOCAL_MINOR_VERSION LOCAL_REVISION_VERSION )    
@@ -305,6 +305,7 @@ macro( dmake_project_end )
                 add_library( ${LIBRARY_NAME} STATIC ${${LIBRARY_NAME}_SOURCES} )
             endif( "${${LIBRARY_NAME}_SHARED}" STREQUAL "ON" )
             target_link_libraries( ${LIBRARY_NAME} ${EXTERNAL_LIBRARIES} )
+            #set_property(TARGET ${LIBRARY_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
         endif( "${${LIBRARY_NAME}_ENABLED}" STREQUAL "ON" )
     endforeach()
     
@@ -318,6 +319,7 @@ macro( dmake_project_end )
                 endif( "${${LIBRARY_NAME}_ENABLED}" STREQUAL "ON" )
             endforeach()
             target_link_libraries( ${EXECUTABLE_NAME} ${EXTERNAL_LIBRARIES} )
+            #set_property(TARGET ${EXECUTABLE_NAME} PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
         endif( "${${EXECUTABLE_NAME}_ENABLED}" STREQUAL "ON" )
     endforeach()
     
