@@ -110,6 +110,7 @@ macro( dmake_library_declare LOCAL_LIBRARY_NAME LOCAL_LIBRARY_ROOT_DIRECTORY )
     # clear out headers and source lists for the library
     set( ${LOCAL_LIBRARY_NAME}_HEADERS "" )
     set( ${LOCAL_LIBRARY_NAME}_SOURCES "" )
+    set( ${LOCAL_LIBRARY_NAME}_LIBRARIES "" )
     
     # talk about our feelings
     if( "${${DM_PROJECT_NAME}_VERBOSE}" STREQUAL "ON" )
@@ -198,6 +199,26 @@ macro( dmake_library_sources_external LOCAL_LIBRARY_NAME )
 
 endmacro()
 
+# add ballsucking library content to a library (MUSS BE DECLARE PREVISS)
+macro( dmake_library_libraries LOCAL_LIBRARY_NAME )
+    
+    # make sure libarry wub define
+    if( NOT DEFINED ${LOCAL_LIBRARY_NAME}_ROOT_DIRECTORY )
+        message( STATUS "*** library called <${LOCAL_LIBRARY_NAME} has not been defined!" )
+    endif( NOT DEFINED ${LOCAL_LIBRARY_NAME}_ROOT_DIRECTORY )
+    
+    # add all given libarry to libarry
+    foreach( LIBRARY ${ARGN} )
+        list( APPEND ${LOCAL_LIBRARY_NAME}_LIBRARIES ${LIBRARY} )
+    endforeach()
+    
+    # prease feeling discuss
+    if( "${${DM_PROJECT_NAME}_VERBOSE}" STREQUAL "ON" )
+        message( STATUS "*** library called <${LOCAL_LIBRARY_NAME}> has libraries <${${LOCAL_LIBRARY_NAME}_LIBRARIES}>" )
+    endif( "${${DM_PROJECT_NAME}_VERBOSE}" STREQUAL "ON" )
+    
+endmacro()
+
 # declare the existence of an executable and the root subdirectory where its sources are kept
 macro( dmake_executable_declare LOCAL_EXECUTABLE_NAME LOCAL_EXECUTABLE_ROOT_DIRECTORY )
     
@@ -218,8 +239,9 @@ macro( dmake_executable_declare LOCAL_EXECUTABLE_NAME LOCAL_EXECUTABLE_ROOT_DIRE
     set( ${LOCAL_EXECUTABLE_NAME}_ENABLED ON CACHE BOOL "enable or disable building of library <${LOCAL_LIBRARY_NAME}>" )
     mark_as_advanced( ${LOCAL_EXECUTABLE_NAME}_ENABLED )
 
-    # clear out sources for the executable    
+    # clear out sources and dey libarry for the executable    
     set( ${LOCAL_EXECUTABLE_NAME}_SOURCES "" )
+    set( ${LOCAL_EXECUTABLE_NAME}_LIBRARIES "" )
     
     # talk about our feelings
     if( "${${DM_PROJECT_NAME}_VERBOSE}" STREQUAL "ON" )
@@ -253,7 +275,7 @@ macro( dmake_executable_sources_external LOCAL_EXECUTABLE_NAME )
 
     # make sure the executable was defined
     if( NOT DEFINED ${LOCAL_EXECUTABLE_NAME}_ROOT_DIRECTORY )
-        message( STATUS "*** executable called <${LOCAL_EXECUTABLE_NAME} has not been defined!" )
+        message( STATUS "*** executable called <${LOCAL_EXECUTABLE_NAME}> has not been defined!" )
     endif( NOT DEFINED ${LOCAL_EXECUTABLE_NAME}_ROOT_DIRECTORY )
 
     # add all source given to the list of sources for this executable
@@ -266,6 +288,26 @@ macro( dmake_executable_sources_external LOCAL_EXECUTABLE_NAME )
         message( STATUS "*** executable called <${LOCAL_EXECUTABLE_NAME}> has sources <${${LOCAL_EXECUTABLE_NAME}_SOURCES}>" )
     endif( "${${DM_PROJECT_NAME}_VERBOSE}" STREQUAL "ON" )
 
+endmacro()
+
+# add ballsucking library content to a execrrt (MUSS BE DECLARE PREVISS)
+macro( dmake_executable_libraries LOCAL_EXECUTABLE_NAME )
+    
+    # make sure execrrt wub define
+    if( NOT DEFINED ${LOCAL_EXECUTABLE_NAME}_ROOT_DIRECTORY )
+        message( STATUS "*** executable called <${LOCAL_EXECUTABLE_NAME}> has not been defined!" )
+    endif( NOT DEFINED ${LOCAL_EXECUTABLE_NAME}_ROOT_DIRECTORY )
+    
+    # add all given libarry to execrrt
+    foreach( LIBRARY ${ARGN} )
+        list( APPEND ${LOCAL_EXECUTABLE_NAME}_LIBRARIES ${LIBRARY} )
+    endforeach()
+    
+    # prease feeling discuss
+    if( "${${DM_PROJECT_NAME}_VERBOSE}" STREQUAL "ON" )
+        message( STATUS "*** executable called <${LOCAL_EXECUTABLE_NAME}> has libraries <${${LOCAL_EXECUTABLE_NAME}_LIBRARIES}>" )
+    endif( "${${DM_PROJECT_NAME}_VERBOSE}" STREQUAL "ON" )
+    
 endmacro()
 
 # trigger everything and finish
@@ -304,9 +346,8 @@ macro( dmake_project_end )
             else( "${${LIBRARY_NAME}_SHARED}" STREQUAL "ON" )
                 add_library( ${LIBRARY_NAME} STATIC ${${LIBRARY_NAME}_SOURCES} )
             endif( "${${LIBRARY_NAME}_SHARED}" STREQUAL "ON" )
-            target_link_libraries( ${LIBRARY_NAME} ${EXTERNAL_LIBRARIES} )
+            target_link_libraries( ${LIBRARY_NAME} ${${LIBRARY_NAME}_LIBRARIES} ${EXTERNAL_LIBRARIES} )
             set_target_properties(${LIBRARY_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-            set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS -Wl,--no-as-needed)
         endif( "${${LIBRARY_NAME}_ENABLED}" STREQUAL "ON" )
     endforeach()
     
@@ -314,14 +355,8 @@ macro( dmake_project_end )
     foreach( EXECUTABLE_NAME ${${DM_PROJECT_NAME}_EXECUTABLES} )
         if( "${${EXECUTABLE_NAME}_ENABLED}" STREQUAL "ON" )
             add_executable( ${EXECUTABLE_NAME} ${${EXECUTABLE_NAME}_SOURCES} )
-            foreach( LIBRARY_NAME ${${DM_PROJECT_NAME}_LIBRARIES} )
-                if( "${${LIBRARY_NAME}_ENABLED}" STREQUAL "ON" )
-                    target_link_libraries( ${EXECUTABLE_NAME} ${LIBRARY_NAME} )
-                endif( "${${LIBRARY_NAME}_ENABLED}" STREQUAL "ON" )
-            endforeach()
-            target_link_libraries( ${EXECUTABLE_NAME} ${EXTERNAL_LIBRARIES} )
+            target_link_libraries( ${EXECUTABLE_NAME} ${${EXECUTABLE_NAME}_LIBRARIES} ${EXTERNAL_LIBRARIES} )
             set_target_properties(${EXECUTABLE_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-            set_target_properties(${EXECUTABLE_NAME} PROPERTIES LINK_FLAGS -Wl,--no-as-needed)
         endif( "${${EXECUTABLE_NAME}_ENABLED}" STREQUAL "ON" )
     endforeach()
     
